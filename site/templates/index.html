@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Поиск</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            height: 100vh;
+            margin: 0;
+            padding-top: 50px;
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .search-container {
+            background-color: #fff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            border-radius: 5px;
+            width: 50%;
+            position: relative;
+        }
+
+        form {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #search-input {
+            flex-grow: 1;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            margin-right: 10px;
+        }
+
+        button {
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .radio-options {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+
+        label {
+            margin-right: 10px;
+        }
+
+        #loading {
+            display: none;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        #results {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="search-container">
+        <form id="search-form">
+            <input type="text" id="search-input" placeholder="Введите поисковый запрос">
+            <button type="submit">Поиск</button>
+        </form>
+        <div class="radio-options">
+            <label>
+                <input type="radio" name="search-option" value="title" checked> Заголовок
+            </label>
+            <label>
+                <input type="radio" name="search-option" value="title-and-first"> Заголовок и первый абзац
+            </label>
+            <label>
+                <input type="radio" name="search-option" value="full-text"> Весь текст
+            </label>
+        </div>
+        <div id="loading" class="hidden">Загрузка...</div>
+        <ul id="results">
+        </ul>
+    </div>
+    <script>
+        document.getElementById("search-form").addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const searchInput = document.getElementById("search-input");
+            const searchOption = document.querySelector('input[name="search-option"]:checked');
+            const resultsList = document.getElementById("results");
+            const loadingIndicator = document.getElementById("loading");
+
+            const formData = new FormData();
+            formData.append("search", searchInput.value);
+            formData.append("search-option", searchOption.value);
+
+            resultsList.innerHTML = '';
+            loadingIndicator.classList.remove("hidden");
+
+            const response = await fetch('/search', {
+                method: 'POST',
+                body: formData
+            });
+            const results = await response.json();
+
+            loadingIndicator.classList.add("hidden");
+            results.forEach(result => {
+                const listItem = document.createElement("li");
+                const link = document.createElement("a");
+                link.setAttribute("href", `/file/${encodeURIComponent(result)}`);
+                link.setAttribute("target", "_blank");
+                link.textContent = result.substring(12);
+                listItem.appendChild(link);
+                resultsList.appendChild(listItem);
+            });
+        });
+    </script>
+</body>
+
+</html>

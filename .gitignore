@@ -1,0 +1,8 @@
+data/
+texts/
+build/
+.vscode/
+vcpkg/
+
+search/bins/
+MAI-IR-main/
